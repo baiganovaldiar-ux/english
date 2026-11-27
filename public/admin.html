@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>English Ladder: админ-панель</title>
+<style>
+:root{--bg:#F8FAFC;--s:#fff;--ink:#0f172a;--mut:#64748b;--ln:#e2e8f0;--br:#2563EB;--bs:#dbeafe;--ok:#16a34a;--bad:#dc2626;--cta:#F97316;color-scheme:light}
+@media(prefers-color-scheme:dark){:root{--bg:#0d1322;--s:#141c31;--ink:#e6e9f2;--mut:#94a0bb;--ln:#27314e;--br:#7ea6f5;--bs:#1b2a52;--ok:#7cc4a0;--bad:#f08a90;color-scheme:dark}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 Inter,system-ui,sans-serif;padding:env(safe-area-inset-top,0) 0 env(safe-area-inset-bottom,0)}
+header{display:flex;gap:12px;align-items:center;padding:12px 20px;background:var(--s);border-bottom:1px solid var(--ln);flex-wrap:wrap}header h1{font-size:18px;margin:0}header a,button{font:inherit}
+.w{max-width:1180px;margin:0 auto;padding:18px}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+.c{background:var(--s);border:1px solid var(--ln);border-radius:14px;padding:14px}.c b{display:block;font-size:26px;color:var(--br)}.c small,.m{color:var(--mut)}
+button,.btn{background:var(--s);color:var(--ink);border:1px solid var(--ln);border-radius:10px;padding:6px 12px;cursor:pointer;text-decoration:none;display:inline-block}button:hover,.btn:hover{border-color:var(--br)}
+button.on{background:var(--bs);border-color:var(--br);color:var(--br)}button.d{color:var(--bad)}
+input,select{font:inherit;padding:7px 10px;border:1px solid var(--ln);border-radius:10px;background:var(--s);color:var(--ink)}
+table{width:100%;border-collapse:collapse}th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--ln);vertical-align:top}th{color:var(--mut);font-size:12px;text-transform:uppercase;letter-spacing:.06em}tr.r{cursor:pointer}tr.r:hover{background:var(--bs)}
+.tag{display:inline-block;padding:1px 8px;border-radius:99px;font-size:12px;background:var(--bs);color:var(--br)}.tag.b{background:#fee2e2;color:var(--bad)}.tag.g{background:#dcfce7;color:var(--ok)}
+.bar{display:flex;gap:8px;flex-wrap:wrap;margin:16px 0}.pane{position:fixed;top:0;right:0;bottom:0;width:min(520px,100%);background:var(--s);border-left:1px solid var(--ln);padding:18px;overflow:auto;box-shadow:-10px 0 30px rgba(0,0,0,.2)}
+.ev{padding:6px 0;border-bottom:1px dashed var(--ln)}.ev time{color:var(--mut);font-size:12px;display:block}.sc{overflow-x:auto}
+</style></head><body>
+<header><h1>English Ladder · админ-панель</h1><a class="btn" href="/app">Приложение</a><a class="btn" href="/admin/../api/admin/export.csv" id="csv">Скачать CSV</a><span class="m" id="who" style="margin-left:auto"></span><button id="out">Выйти</button></header>
+<div class="w" id="root"><p class="m">Загрузка…</p></div><div id="pane"></div>
+<script>
+const $=s=>document.querySelector(s),esc=t=>String(t??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+async function api(m,u,b){const r=await fetch(u,{method:m,headers:b?{'Content-Type':'application/json'}:{},body:b?JSON.stringify(b):undefined});const j=await r.json().catch(()=>({}));if(!r.ok)throw Object.assign(new Error(j.error||r.status),{status:r.status,j});return j}
+const ago=t=>{if(!t)return 'никогда';const m=(Date.now()-t)/6e4;return m<2?'только что':m<60?Math.floor(m)+' мин назад':m<1440?Math.floor(m/60)+' ч назад':Math.floor(m/1440)+' дн назад'};
+const dt=t=>t?new Date(t).toLocaleString('ru-RU'):'—';
+function evText(e){let d={};try{d=JSON.parse(e.data||'{}')||{}}catch{}const T={register:'Зарегистрировался',login:'Вошёл',lesson_pass:`Прошёл «${d.title||'урок'}» (${d.level||''}${d.test?', итоговый тест':''}, ${d.pct}%)`,lesson_fail:`Не прошёл «${d.title||'урок'}» (${d.level||''}, ${d.pct}%)`,wordset:`Квиз по словам ${d.id||''}: ${d.ok}/${d.n}`,write:`Режим «Писать»: ${d.ok}/${d.n}`,match:`Игра «Найди пару»: ${d.sec} с`,speak:`Говорение: совпадение ${d.pc}%`,quiz:`Квиз по словам: ${d.ok} верных`,placement:`Тест уровня: ${d.score} из 18, примерно ${d.level}`};return T[e.type]||e.type}
+const F={q:'',f:'',s:'created'};let tab='users';
+async function main(){let me;try{me=await api('GET','/api/me')}catch{location.href='/?login=1';return}
+ if(me.role!=='admin'){$('#root').innerHTML='<div class="c"><b>Нет доступа</b><p class="m">Эта страница только для администраторов.</p><a class="btn" href="/app">В приложение</a></div>';return}
+ $('#who').textContent=me.name+' · '+me.email;$('#csv').href='/api/admin/export.csv';render()}
+async function render(){const st=await api('GET','/api/admin/stats');
+ const cards=[['Всего',st.users],['Были за 24 ч',st.active1],['За 7 дней',st.active7],['За 30 дней',st.active30],['Новые за 7 дней',st.new7],['Без прогресса',st.noProgress],['Заблокированы',st.blocked],['Админы',st.admins]].map(([k,v])=>`<div class="c"><b>${v}</b><small>${k}</small></div>`).join('');
+ const lv=st.byLevel.map(x=>`<span class="tag">${esc(x.level||'?')}: ${x.n} уроков, ${x.users} чел.</span>`).join(' ')||'<span class="m">пока нет</span>';
+ const dly=st.daily.map(x=>`<span class="tag">${esc(x.day.slice(5))}: ${x.users} чел.</span>`).join(' ')||'<span class="m">пока нет</span>';
+ $('#root').innerHTML=`<div class="grid">${cards}</div><div class="c" style="margin-top:12px"><small>Пройдено уроков по уровням</small><div style="margin-top:6px">${lv}</div></div><div class="c" style="margin-top:12px"><small>Активные пользователи по дням (14 дней)</small><div style="margin-top:6px">${dly}</div></div>
+ <div class="bar"><button data-t="users" class="${tab==='users'?'on':''}">Пользователи</button><button data-t="events" class="${tab==='events'?'on':''}">Лента активности</button></div><div id="tab"></div>`;
+ document.querySelectorAll('[data-t]').forEach(b=>b.onclick=()=>{tab=b.dataset.t;render()});tab==='users'?users():events()}
+async function users(){$('#tab').innerHTML=`<div class="bar"><input id="q" placeholder="Поиск по имени или e-mail" value="${esc(F.q)}"><select id="f">${[['','Все'],['active7','Активны за 7 дней'],['inactive','Не заходили 14+ дней'],['noprogress','Зарегистрировались, но ничего не сделали'],['blocked','Заблокированные'],['admins','Админы']].map(([v,l])=>`<option value="${v}" ${F.f===v?'selected':''}>${l}</option>`).join('')}</select><select id="s">${[['created','Сначала новые'],['seen','По последней активности'],['xp','По опыту'],['name','По имени']].map(([v,l])=>`<option value="${v}" ${F.s===v?'selected':''}>${l}</option>`).join('')}</select></div><div class="c sc" id="tb"></div>`;
+ const go=async()=>{F.q=$('#q').value;F.f=$('#f').value;F.s=$('#s').value;const r=await api('GET','/api/admin/users?'+new URLSearchParams(F));
+ $('#tb').innerHTML=`<table><tr><th>Пользователь</th><th>Роль</th><th>Статус</th><th>Последний визит</th><th>XP</th><th>Уроков</th><th>Слов</th><th>Серия</th></tr>${r.rows.map(u=>`<tr class="r" data-id="${u.id}"><td><b>${esc(u.name)}</b><br><small class="m">${esc(u.email)}</small></td><td>${u.role==='admin'?'<span class="tag">админ</span>':'пользователь'}</td><td>${u.status==='blocked'?'<span class="tag b">заблокирован</span>':'<span class="tag g">активен</span>'}</td><td>${ago(u.last_seen)}</td><td>${u.xp}</td><td>${u.lessons}</td><td>${u.words}</td><td>${u.streak}</td></tr>`).join('')||'<tr><td colspan="8" class="m">Никого не найдено</td></tr>'}</table>`;
+ document.querySelectorAll('tr.r').forEach(t=>t.onclick=()=>detail(+t.dataset.id))};
+ $('#q').oninput=()=>{clearTimeout(go.t);go.t=setTimeout(go,250)};$('#f').onchange=go;$('#s').onchange=go;go()}
+async function events(){const r=await api('GET','/api/admin/events');$('#tab').innerHTML=`<div class="c">${r.rows.map(e=>`<div class="ev"><time>${dt(e.ts)}</time><b>${esc(e.name)}</b> <span class="m">${esc(e.email)}</span><br>${esc(evText(e))}</div>`).join('')||'<span class="m">Событий пока нет</span>'}</div>`}
+async function detail(id){const r=await api('GET','/api/admin/users/'+id),u=r.user;
+ $('#pane').innerHTML=`<div class="pane"><button id="x" style="float:right">Закрыть</button><h2 style="margin:0">${esc(u.name)}</h2><p class="m">${esc(u.email)} · ${u.role==='admin'?'админ':'пользователь'} · ${u.status==='blocked'?'заблокирован':'активен'}</p>
+ <div class="grid"><div class="c"><b>${u.xp}</b><small>XP</small></div><div class="c"><b>${u.lessons}</b><small>уроков</small></div><div class="c"><b>${u.words}</b><small>слов</small></div><div class="c"><b>${u.streak}</b><small>серия</small></div></div>
+ <p class="m">Регистрация: ${dt(u.created_at)}<br>Последний вход: ${dt(u.last_login)}<br>Последняя активность: ${ago(u.last_seen)}</p>
+ <div class="bar">${u.status==='blocked'?'<button data-a="unblock">Разблокировать</button>':'<button data-a="block" class="d">Заблокировать</button>'}${u.role==='admin'?'<button data-a="demote">Снять админа</button>':'<button data-a="promote">Сделать админом</button>'}<button data-a="reset_password">Сбросить пароль</button><button data-a="delete" class="d">Удалить</button></div><div id="msg" class="m"></div>
+ <h3>Пройдено (${r.done.length})</h3><p class="m">${r.done.map(esc).join(', ')||'ничего'}</p><h3>Что делал</h3>${r.counts.map(c=>`<span class="tag">${esc(c.type)}: ${c.n}</span>`).join(' ')}
+ <h3>История</h3>${r.events.map(e=>`<div class="ev"><time>${dt(e.ts)}</time>${esc(evText(e))}</div>`).join('')||'<span class="m">пусто</span>'}</div>`;
+ $('#x').onclick=()=>$('#pane').innerHTML='';
+ document.querySelectorAll('[data-a]').forEach(b=>b.onclick=async()=>{const a=b.dataset.a;if(['delete','block','reset_password'].includes(a)&&!confirm('Подтвердите: '+b.textContent))return;
+  try{const x=await api('POST','/api/admin/users/'+id,{action:a});if(a==='delete'){$('#pane').innerHTML='';render()}else if(x.temp_password){$('#msg').innerHTML='Временный пароль (покажется один раз): <b>'+esc(x.temp_password)+'</b>'}else{detail(id);render()}}catch(e){$('#msg').textContent='Ошибка: '+(e.j&&e.j.error||e.message)}})}
+$('#out').onclick=async()=>{await api('POST','/api/auth/logout',{});location.href='/'};main();
+</script></body></html>

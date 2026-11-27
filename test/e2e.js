@@ -1,0 +1,41 @@
+// Сквозной тест: node test/e2e.js  (поднимает сервер на временной базе)
+const {spawn}=require('child_process'),fs=require('fs'),os=require('os'),path=require('path');
+const dbf=path.join(os.tmpdir(),'el-test-'+Date.now()+'.sqlite'),port=3900+Math.floor(Math.random()*90),base='http://localhost:'+port;
+const srv=spawn(process.execPath,[path.join(__dirname,'..','server.js')],{env:{...process.env,PORT:port,DB_FILE:dbf},stdio:'ignore'});
+const jar={};let pass=0,bad=0;
+const ok=(n,c)=>{c?pass++:bad++;console.log((c?'ok   ':'FAIL ')+n)};
+async function call(who,m,u,b,raw){const r=await fetch(base+u,{method:m,headers:{...(b!==undefined?{'Content-Type':'application/json'}:{}),...(jar[who]?{Cookie:jar[who]}:{}),...(raw||{})},body:b!==undefined?JSON.stringify(b):undefined});const sc=r.headers.get('set-cookie');if(sc)jar[who]=sc.split(';')[0];const t=await r.text();let j;try{j=JSON.parse(t)}catch{j=t}return {s:r.status,j,h:r.headers}}
+(async()=>{for(let i=0;i<50;i++){try{await fetch(base+'/api/me');break}catch{await new Promise(r=>setTimeout(r,100))}}
+ let r=await call('a','POST','/api/auth/register',{email:'Admin@Test.io',name:'Админ',password:'password123'});ok('первый пользователь регистрируется и становится админом',r.s===201&&r.j.role==='admin');
+ r=await call('b','POST','/api/auth/register',{email:'user@test.io',name:'Анна',password:'password123'});ok('второй пользователь обычный',r.s===201&&r.j.role==='user');
+ r=await call('c','POST','/api/auth/register',{email:'user@test.io',name:'X',password:'password123'});ok('повторный e-mail отклоняется (409)',r.s===409);
+ r=await call('c','POST','/api/auth/register',{email:'bad',name:'X',password:'password123'});ok('плохой e-mail отклоняется (400)',r.s===400);
+ r=await call('c','POST','/api/auth/register',{email:'w@test.io',name:'X',password:'short'});ok('короткий пароль отклоняется (400)',r.s===400);
+ r=await call('x','GET','/api/me');ok('без входа /api/me даёт 401',r.s===401);
+ r=await call('b','GET','/api/me');ok('/api/me после регистрации отдаёт профиль',r.s===200&&r.j.email==='user@test.io');
+ r=await call('b','PUT','/api/progress',{data:{xp:120,done:{'0-0':1,'0-1':1},words:{a:{k:1}},ts:5},stats:{xp:120,lessons:2,words:1,streak:3}});ok('прогресс сохраняется',r.s===200);
+ r=await call('b','GET','/api/progress');ok('прогресс читается обратно',r.j.data&&r.j.data.xp===120);
+ r=await call('b','POST','/api/events',{events:[{type:'lesson_pass',data:{level:'A1',idx:0,title:'Приветствие',pct:100}},{type:'lesson_pass',data:{level:'A1',idx:1,title:'to be',pct:83}},{type:'BAD TYPE',data:{}}]});ok('события сохраняются, неверный тип отбрасывается',r.j.saved===2);
+ r=await call('b','GET','/api/leaderboard');ok('рейтинг отдаёт имя и XP без e-mail',r.j.rows[0].name==='Анна'&&r.j.rows[0].xp===120&&!JSON.stringify(r.j).includes('@'));
+ r=await call('b','GET','/api/admin/stats');ok('обычному пользователю админка закрыта (403)',r.s===403);
+ r=await call('a','GET','/api/admin/stats');ok('админ видит статистику',r.s===200&&r.j.users===2&&r.j.byLevel[0].n===2);
+ r=await call('a','GET','/api/admin/users?f=noprogress');ok('фильтр «без прогресса» находит админа',r.j.rows.length===1&&r.j.rows[0].email==='admin@test.io');
+ r=await call('a','GET','/api/admin/users?q=%D0%90%D0%BD%D0%BD');ok('поиск по имени работает',r.j.rows.length===1&&r.j.rows[0].xp===120);
+ const uid=(await call('a','GET','/api/admin/users?q=user@')).j.rows[0].id;
+ r=await call('a','GET','/api/admin/users/'+uid);ok('карточка пользователя: пройденные и события',r.j.done.length===2&&r.j.events.length>=3);
+ r=await call('a','GET','/api/admin/export.csv');ok('CSV выгружается',typeof r.j==='string'&&r.j.includes('user@test.io'));
+ r=await call('a','POST','/api/admin/users/'+uid,{action:'block'});r=await call('b','GET','/api/me');ok('блокировка выбрасывает пользователя (401)',r.s===401);
+ r=await call('b','POST','/api/auth/login',{email:'user@test.io',password:'password123'});ok('заблокированный не входит (403)',r.s===403);
+ await call('a','POST','/api/admin/users/'+uid,{action:'unblock'});
+ r=await call('a','POST','/api/admin/users/'+uid,{action:'reset_password'});const tmp=r.j.temp_password;ok('сброс пароля даёт временный',!!tmp);
+ r=await call('b','POST','/api/auth/login',{email:'user@test.io',password:tmp});ok('вход по временному паролю',r.s===200);
+ r=await call('b','POST','/api/auth/login',{email:'user@test.io',password:'password123'});ok('старый пароль не работает (401)',r.s===401);
+ const aid=(await call('a','GET','/api/admin/users?q=admin@')).j.rows[0].id;
+ r=await call('a','POST','/api/admin/users/'+aid,{action:'demote'});ok('единственного админа понизить нельзя',r.s===400);
+ r=await call('a','POST','/api/admin/users/'+aid,{action:'delete'});ok('админ не может удалить себя',r.s===400);
+ r=await call('a','POST','/api/auth/register',{email:'q@test.io',name:'Q',password:'password123'},{Origin:'http://evil.example'});ok('чужой Origin отклоняется (403)',r.s===403);
+ r=await fetch(base+'/api/auth/login',{method:'POST',headers:{'Content-Type':'text/plain'},body:'{}'});ok('не-JSON запрос отклоняется (415)',r.status===415);
+ let last;for(let i=0;i<12;i++)last=await call('z','POST','/api/auth/login',{email:'user@test.io',password:'wrong-'+i});ok('перебор пароля блокируется (429)',last.s===429);
+ r=await call('a','POST','/api/admin/users/'+uid,{action:'delete'});r=await call('a','GET','/api/admin/stats');ok('удаление пользователя убирает его и события',r.j.users===1&&!r.j.byLevel.length);
+ r=await fetch(base+'/../server.js');const r2=await fetch(base+'/%2e%2e/server.js');ok('выход за папку public невозможен',r2.status===404);
+ console.log(`\nИтого: ${pass} ок, ${bad} ошибок`);srv.kill();for(const e of ['','-wal','-shm'])try{fs.unlinkSync(dbf+e)}catch{}process.exit(bad?1:0)})().catch(e=>{console.error(e);srv.kill();process.exit(1)});

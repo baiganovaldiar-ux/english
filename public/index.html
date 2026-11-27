@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>English Ladder: платформа для изучения английского</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com/3.4.17"></script>
+<style>
+:root{--bg:#F8FAFC;--surface:#fff;--ink:#0f172a;--muted:#64748b;--line:#e2e8f0;--brand:#2563EB;--brand-soft:#dbeafe;--cta:#F97316;--cta-ink:#fff;--on-brand:#fff;--shadow:0 10px 30px rgba(15,23,42,.07);color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0d1322;--surface:#141c31;--ink:#e6e9f2;--muted:#94a0bb;--line:#27314e;--brand:#7ea6f5;--brand-soft:#1b2a52;--cta:#f0a35e;--cta-ink:#1a1006;--on-brand:#0d1322;--shadow:0 12px 32px rgba(0,0,0,.4);color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0d1322;--surface:#141c31;--ink:#e6e9f2;--muted:#94a0bb;--line:#27314e;--brand:#7ea6f5;--brand-soft:#1b2a52;--cta:#f0a35e;--cta-ink:#1a1006;--on-brand:#0d1322;--shadow:0 12px 32px rgba(0,0,0,.4);color-scheme:dark}
+html{scroll-behavior:smooth;scroll-padding-top:calc(env(safe-area-inset-top,0px) + 76px)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,sans-serif;line-height:1.6}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--surface);z-index:60}
+h1,h2,h3,.head{font-family:"Plus Jakarta Sans",system-ui,sans-serif;letter-spacing:-.02em}
+header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:50;background:color-mix(in srgb,var(--surface) 88%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.muted{color:var(--muted)}.card{background:var(--surface);border:1px solid var(--line);border-radius:1.25rem;box-shadow:var(--shadow)}
+.btn{display:inline-flex;align-items:center;gap:.5rem;font-weight:600;border-radius:.9rem;padding:.7rem 1.2rem;border:1px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer;transition:transform .15s,box-shadow .15s,background .15s}
+.btn:hover{transform:translateY(-1px);box-shadow:var(--shadow)}
+.btn-p{background:var(--brand);border-color:var(--brand);color:var(--on-brand)}:root[data-theme="dark"] .btn-p{color:#0d1322}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .btn-p{color:#0d1322}}
+.btn-c{background:var(--cta);border-color:var(--cta);color:var(--cta-ink)}
+.chip{display:inline-block;font-size:.75rem;font-weight:600;padding:.2rem .65rem;border-radius:999px;background:var(--brand-soft);color:var(--brand)}
+.tab{width:100%;text-align:left;padding:1rem 1.1rem;border-radius:1rem;border:1px solid transparent;cursor:pointer;background:transparent;color:inherit}
+.tab.on{background:var(--surface);border-color:var(--line);box-shadow:var(--shadow)}
+.tab.on .num{background:var(--brand);color:var(--on-brand)}.num{display:inline-flex;width:2rem;height:2rem;align-items:center;justify-content:center;border-radius:999px;background:var(--brand-soft);color:var(--brand);font-weight:700}
+.float{animation:fl 5s ease-in-out infinite}@keyframes fl{50%{transform:translateY(-8px)}}
+.ph{display:block;width:100%;height:100%;border-radius:inherit}
+.persp{perspective:1200px}.flip{position:relative;height:300px;transform-style:preserve-3d;transition:transform .6s cubic-bezier(.2,.8,.2,1)}.flip.on{transform:rotateY(180deg)}
+.face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:1.5rem}.back{transform:rotateY(180deg)}
+.wave{display:flex;gap:3px;align-items:center;height:28px}.wave i{width:4px;height:8px;border-radius:2px;background:var(--brand);transition:height .2s}.wave.go i{animation:wv .8s ease-in-out infinite}.wave.go i:nth-child(2n){animation-delay:.15s}.wave.go i:nth-child(3n){animation-delay:.3s}@keyframes wv{50%{height:26px}}
+.modal{position:fixed;inset:0;z-index:70;display:none;align-items:center;justify-content:center;padding:1rem;background:rgba(8,12,24,.6)}.modal.open{display:flex}
+input.f{width:100%;padding:.7rem .9rem;border-radius:.8rem;border:1px solid var(--line);background:var(--bg);color:var(--ink);font:inherit}input.f:focus{outline:2px solid var(--brand);outline-offset:1px}
+button:focus-visible,a:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+@media (prefers-reduced-motion:reduce){.float,.wave.go i{animation:none}.flip{transition:none}}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="mx-auto max-w-6xl px-4 h-16 flex items-center gap-4">
+    <a href="#top" class="head font-extrabold text-xl flex items-center gap-2"><span class="inline-flex w-8 h-8 rounded-xl items-center justify-center" style="background:var(--brand);color:var(--on-brand)">EL</span><span>English Ladder</span></a>
+    <nav class="hidden md:flex gap-5 text-sm ml-6 muted" id="nav"></nav>
+    <div class="ml-auto flex items-center gap-2">
+      <div class="flex rounded-xl border p-0.5 text-xs font-semibold" style="border-color:var(--line)" id="lang"></div>
+      <button class="btn !p-2" id="theme" aria-label="Тема"></button>
+      <div id="auth" class="flex items-center gap-2"></div>
+    </div>
+  </div>
+</header>
+
+<main id="top">
+<!-- HERO -->
+<section class="mx-auto max-w-6xl px-4 pt-14 pb-20 grid lg:grid-cols-2 gap-12 items-center">
+  <div>
+    <span class="chip" data-i18n="hero.chip">Метод от A1 до C2</span>
+    <h1 class="mt-4 text-4xl sm:text-5xl font-extrabold leading-tight" data-i18n="hero.title">Английский, который вы действительно запомните</h1>
+    <p class="mt-5 text-lg muted max-w-xl" data-i18n="hero.sub">Короткие уроки, карточки с интервальным повторением и живая практика с преподавателями. План подстраивается под ваш уровень.</p>
+    <div class="mt-8 flex flex-wrap gap-3">
+      <button class="btn btn-c" data-open="m-login" data-i18n="cta.start">Начать бесплатно</button>
+      <button class="btn" data-open="m-trial" data-i18n="cta.level">Определить уровень</button>
+    </div>
+    <p class="mt-4 text-sm muted" data-i18n="hero.note">Без карты. Первый урок за 5 минут.</p>
+  </div>
+  <div class="relative">
+    <!-- IMG_PLACEHOLDER: главная иллюстрация / 3D-рендер, 4:3, рекомендовано 1200x900px (WebP). Подставьте <img src="..."> вместо <svg class="ph"> -->
+    <div class="card overflow-hidden relative" style="aspect-ratio:4/3">
+      <svg class="ph" viewBox="0 0 600 450" role="img" aria-label="Заглушка 600x450">
+        <defs><pattern id="pt" width="24" height="24" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r="1.4" fill="currentColor" opacity=".25"/></pattern><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2563EB" stop-opacity=".18"/><stop offset="1" stop-color="#F97316" stop-opacity=".16"/></linearGradient></defs>
+        <rect width="600" height="450" fill="url(#g)"/><rect width="600" height="450" fill="url(#pt)" style="color:var(--muted)"/>
+        <text x="300" y="215" text-anchor="middle" font-family="Plus Jakarta Sans" font-weight="800" font-size="30" fill="currentColor" style="color:var(--ink)">Hero illustration</text>
+        <text x="300" y="250" text-anchor="middle" font-family="Inter" font-size="16" fill="currentColor" style="color:var(--muted)">600 × 450 px · 3D-рендер или иллюстрация</text>
+      </svg>
+    </div>
+    <div class="card float absolute -left-3 sm:-left-8 top-10 px-4 py-3 flex items-center gap-3"><span class="chip" id="b1i"></span><div><div class="font-bold text-sm" data-i18n="hero.b1">+150 новых слов за неделю</div><div class="text-xs muted" data-i18n="hero.b1s">в среднем по платформе</div></div></div>
+    <div class="card float absolute -right-2 sm:-right-6 bottom-8 px-4 py-3 flex items-center gap-3" style="animation-delay:-2s"><span class="chip" id="b2i"></span><div><div class="font-bold text-sm" data-i18n="hero.b2">Разговорный клуб онлайн</div><div class="text-xs muted">сегодня в 19:00</div></div></div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section id="how" class="mx-auto max-w-6xl px-4 py-16">
+  <h2 class="text-3xl font-extrabold" data-i18n="how.title">Как это работает</h2>
+  <div class="mt-8 grid lg:grid-cols-5 gap-8">
+    <div class="lg:col-span-2 flex flex-col gap-2" id="tabs" role="tablist"></div>
+    <div class="lg:col-span-3" id="shot"></div>
+  </div>
+</section>
+
+<!-- DEMO WIDGET -->
+<section id="demo" class="mx-auto max-w-6xl px-4 py-16">
+  <h2 class="text-3xl font-extrabold" data-i18n="demo.title">Попробуйте карточку прямо здесь</h2>
+  <p class="mt-2 muted" data-i18n="demo.sub">Слова загружаются из массива WORDS: замените его на fetch() к вашему API.</p>
+  <div class="mt-8 mx-auto max-w-md">
+    <div class="persp"><div class="flip" id="fc">
+      <div class="face card" id="front"></div>
+      <div class="face card back" id="back"></div>
+    </div></div>
+    <div class="mt-5 flex items-center justify-between gap-2">
+      <button class="btn" id="prev" aria-label="Назад">‹</button>
+      <button class="btn btn-p" id="flipbtn" data-i18n="demo.flip">Перевернуть карточку</button>
+      <button class="btn" id="next" aria-label="Дальше">›</button>
+    </div>
+    <p class="text-center text-sm muted mt-3" id="cnt"></p>
+  </div>
+</section>
+
+<!-- TEACHERS -->
+<section id="teachers" class="mx-auto max-w-6xl px-4 py-16">
+  <h2 class="text-3xl font-extrabold" data-i18n="t.title">Преподаватели</h2>
+  <div class="mt-8 grid sm:grid-cols-2 lg:grid-cols-4 gap-5" id="tgrid"></div>
+</section>
+
+<!-- PRICING -->
+<section id="pricing" class="mx-auto max-w-6xl px-4 py-16">
+  <div class="text-center"><h2 class="text-3xl font-extrabold" data-i18n="p.title">Тарифы</h2>
+    <div class="mt-6 inline-flex rounded-2xl border p-1 text-sm font-semibold" style="border-color:var(--line);background:var(--surface)" id="bill"></div></div>
+  <div class="mt-10 grid md:grid-cols-3 gap-6 items-stretch" id="pgrid"></div>
+</section>
+
+<!-- REVIEWS -->
+<section id="reviews" class="mx-auto max-w-6xl px-4 py-16">
+  <h2 class="text-3xl font-extrabold" data-i18n="r.title">Отзывы и кейсы</h2>
+  <div class="mt-8 grid md:grid-cols-3 gap-6" id="rgrid"></div>
+</section>
+</main>
+
+<footer class="border-t" style="border-color:var(--line);background:var(--surface)">
+  <div class="mx-auto max-w-6xl px-4 py-10 flex flex-wrap items-center gap-4 justify-between">
+    <div><div class="head font-extrabold text-lg">English Ladder</div><p class="text-sm muted" data-i18n="f.text">Платформа для изучения английского языка.</p></div>
+    <div class="flex flex-wrap gap-3 text-sm">
+      <button class="btn" data-open="m-trial" data-i18n="f.trial">Записаться на пробный урок</button>
+      
+    </div>
+  </div>
+</footer>
+
+<!-- MODALS -->
+<div class="modal" id="m-login" role="dialog" aria-modal="true" aria-label="Вход">
+  <div class="card w-full max-w-md p-6 relative">
+    <button class="absolute top-3 right-3 btn !p-2" data-close aria-label="Закрыть" id="x1"></button>
+    <div class="flex gap-2 mb-5" id="lt"></div>
+    <!-- Привяжите к своему API: POST /auth/login и /auth/register -->
+    <form id="lform" class="flex flex-col gap-3">
+      <input class="f" type="text" id="lname" placeholder="Имя" hidden>
+      <input class="f" type="email" id="lemail" name="email" autocomplete="email" placeholder="E-mail" required>
+      <input class="f" type="password" id="lpass" name="password" autocomplete="current-password" minlength="8" placeholder="Пароль (не короче 8 символов)" required><p id="lerr" class="text-sm" style="color:#dc2626" role="alert"></p>
+      <button class="btn btn-c justify-center" id="lsub">Войти</button>
+    </form>
+  </div>
+</div>
+<div class="modal" id="m-trial" role="dialog" aria-modal="true" aria-label="Пробный урок">
+  <div class="card w-full max-w-md p-6 relative">
+    <button class="absolute top-3 right-3 btn !p-2" data-close aria-label="Закрыть" id="x2"></button>
+    <h3 class="text-xl font-extrabold">Запись на пробный урок</h3><p class="muted text-sm mb-4">Перезвоним и подберём преподавателя.</p>
+    <!-- Привяжите к своему API: POST /trial-lessons -->
+    <form id="tform" class="flex flex-col gap-3">
+      <input class="f" type="text" placeholder="Имя" required><input class="f" type="tel" placeholder="Телефон" required>
+      <select class="f" style="padding:.7rem .9rem;border-radius:.8rem;border:1px solid var(--line);background:var(--bg);color:var(--ink)"><option>Мой уровень: не знаю</option><option>A1–A2</option><option>B1–B2</option><option>C1–C2</option></select>
+      <button class="btn btn-c justify-center">Записаться</button>
+    </form>
+  </div>
+</div>
+<div class="modal" id="m-video" role="dialog" aria-modal="true" aria-label="Видео-визитка">
+  <div class="card w-full max-w-2xl p-4 relative">
+    <button class="absolute top-3 right-3 btn !p-2 z-10" data-close aria-label="Закрыть" id="x3"></button>
+    <!-- VIDEO_PLACEHOLDER: вставьте <video controls src="URL"> или iframe плеера. Рекомендовано 16:9, 1280x720 -->
+    <div class="rounded-xl overflow-hidden" style="aspect-ratio:16/9;background:linear-gradient(135deg,var(--brand-soft),var(--line))"><div class="w-full h-full flex flex-col items-center justify-center gap-3"><span class="btn btn-p !rounded-full !p-4" id="vplay"></span><span class="muted text-sm" id="vcap">Видео-визитка · 1280 × 720</span></div></div>
+  </div>
+</div>
+
+<script>
+/* ===== ДАННЫЕ: замените массивы на fetch() к вашему API ===== */
+const TABS=[
+ {t:"Тест",d:"Определим уровень за 10 минут и найдём пробелы.",shot:"Экран теста уровня"},
+ {t:"План",d:"Персональная траектория: уроки, слова и повторения на каждый день.",shot:"Экран плана обучения"},
+ {t:"Практика с ИИ или носителем",d:"Говорите, пишите и получайте разбор ошибок сразу.",shot:"Экран чата с преподавателем"},
+ {t:"Результат",d:"Следите за прогрессом, сериями и достижениями.",shot:"Экран статистики"}];
+const WORDS=[
+ {word:"serendipity",ipa:"/ˌser.ənˈdɪp.ə.ti/",ru:"счастливая случайность",ex:"Meeting her was pure serendipity."},
+ {word:"resilient",ipa:"/rɪˈzɪl.i.ənt/",ru:"стойкий, устойчивый",ex:"Children are often more resilient than we think."},
+ {word:"reluctant",ipa:"/rɪˈlʌk.tənt/",ru:"неохотный",ex:"He was reluctant to speak in public."},
+ {word:"thorough",ipa:"/ˈθʌr.ə/",ru:"тщательный",ex:"We did a thorough check of the report."}];
+const TEACHERS=[
+ {name:"Emily Carter",flag:"🇬🇧",accent:"British",tags:["Бизнес","IELTS"],rate:"4.9"},
+ {name:"Jack Miller",flag:"🇺🇸",accent:"American",tags:["Разговорный","TOEFL"],rate:"4.8"},
+ {name:"Olivia Brown",flag:"🇦🇺",accent:"Australian",tags:["Разговорный","Для детей"],rate:"4.9"},
+ {name:"Aiman Seitkali",flag:"🇰🇿",accent:"Русский / English",tags:["A1–B1","Грамматика"],rate:"5.0"}];
+const PLANS=[
+ {name:"Старт",monthly:0,feat:["Уроки A1–A2","Карточки слов","Квизы"]},
+ {name:"Про",monthly:19,pop:true,feat:["Все уровни A1–C2","Интервальное повторение","Проверка письма ИИ","Разговорный клуб"]},
+ {name:"Премиум",monthly:49,feat:["Всё из «Про»","4 занятия с преподавателем","Персональный куратор"]}];
+const REVIEWS=[
+ {name:"Анна К.",role:"B1 → B2 за 4 месяца",text:"Карточки с повторением реально работают: слова больше не забываются.",proof:"сертификат IELTS 6.5"},
+ {name:"Максим Д.",role:"Менеджер",text:"Разговорный клуб помог перестать бояться говорить на встречах.",proof:"скриншот переписки"},
+ {name:"Алия С.",role:"Студентка",text:"Нравится, что план подстраивается под мой уровень каждый день.",proof:"скриншот статистики"}];
+const I18N={ru:{"nav.how":"Как это работает","nav.demo":"Карточки","nav.t":"Преподаватели","nav.p":"Тарифы","nav.r":"Отзывы","login":"Войти","cabinet":"Личный кабинет","hero.chip":"Метод от A1 до C2","hero.title":"Английский, который вы действительно запомните","hero.sub":"Короткие уроки, карточки с интервальным повторением и живая практика с преподавателями. План подстраивается под ваш уровень.","cta.start":"Начать бесплатно","cta.level":"Определить уровень","hero.note":"Без карты. Первый урок за 5 минут.","hero.b1":"+150 новых слов за неделю","hero.b1s":"в среднем по платформе","hero.b2":"Разговорный клуб онлайн","how.title":"Как это работает","demo.title":"Попробуйте карточку прямо здесь","demo.sub":"Слова загружаются из массива WORDS: замените его на fetch() к вашему API.","demo.flip":"Перевернуть карточку","t.title":"Преподаватели","p.title":"Тарифы","r.title":"Отзывы и кейсы","f.text":"Платформа для изучения английского языка.","f.trial":"Записаться на пробный урок","month":"Месяц","year":"Год (выгода 20%)"},
+en:{"nav.how":"How it works","nav.demo":"Flashcards","nav.t":"Teachers","nav.p":"Pricing","nav.r":"Reviews","login":"Log in","cabinet":"My account","hero.chip":"A1 to C2 method","hero.title":"English you will actually remember","hero.sub":"Short lessons, spaced-repetition flashcards and live practice with teachers. The plan adapts to your level.","cta.start":"Start for free","cta.level":"Find my level","hero.note":"No card needed. Your first lesson in 5 minutes.","hero.b1":"+150 new words a week","hero.b1s":"platform average","hero.b2":"Speaking club online","how.title":"How it works","demo.title":"Try a flashcard right here","demo.sub":"Words come from the WORDS array: replace it with a fetch() to your API.","demo.flip":"Flip card","t.title":"Teachers","p.title":"Pricing","r.title":"Reviews and stories","f.text":"A platform for learning English.","f.trial":"Book a trial lesson","month":"Monthly","year":"Yearly (save 20%)"}};
+
+/* ===== СОСТОЯНИЕ ===== */
+const state={auth:false,lang:"ru",tab:0,card:0,yearly:false,mode:"login"};
+const $=s=>document.querySelector(s);
+const IC={play:'<polygon points="6 3 20 12 6 21 6 3"/>',vol:'<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/>',check:'<path d="M20 6 9 17l-5-5"/>',star:'<polygon points="12 2 15.1 8.3 22 9.3 17 14.1 18.2 21 12 17.8 5.8 21 7 14.1 2 9.3 8.9 8.3 12 2"/>',x:'<path d="M18 6 6 18M6 6l12 12"/>',sun:'<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',moon:'<path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>',user:'<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>',book:'<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V3H6.5A2.5 2.5 0 0 0 4 5.5v14Z"/>',mic:'<rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v4"/>'};
+const ic=(n,s=18)=>`<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${IC[n]}</svg>`;
+const T=k=>I18N[state.lang][k]||k;
+const ph=(w,h,label)=>`<svg class="ph" viewBox="0 0 ${w} ${h}" role="img" aria-label="${label}"><rect width="${w}" height="${h}" fill="var(--brand-soft)"/><text x="50%" y="48%" text-anchor="middle" font-family="Inter" font-size="${Math.max(10,w/14)}" font-weight="600" fill="var(--brand)">${label}</text><text x="50%" y="62%" text-anchor="middle" font-family="Inter" font-size="${Math.max(9,w/20)}" fill="var(--muted)">${w} × ${h} px</text></svg>`;
+const initials=n=>n.split(" ").map(x=>x[0]).join("").slice(0,2);
+
+/* ===== РЕНДЕР ===== */
+function renderNav(){$("#nav").innerHTML=[["how","nav.how"],["demo","nav.demo"],["teachers","nav.t"],["pricing","nav.p"],["reviews","nav.r"]].map(([h,k])=>`<a class="hover:opacity-70" href="#${h}">${T(k)}</a>`).join("");
+ $("#lang").innerHTML=["ru","en"].map(l=>`<button class="px-2.5 py-1 rounded-lg" style="${state.lang===l?"background:var(--brand);color:var(--on-brand)":""}" data-lang="${l}">${l.toUpperCase()}</button>`).join("")}
+function renderAuth(){$("#auth").innerHTML=state.auth?`<button class="btn" id="cab">${ic("user")}<span class="hidden sm:inline">${T("cabinet")}</span></button>`:`<button class="btn btn-p" data-open="m-login">${T("login")}</button>`}
+function applyLang(){document.documentElement.lang=state.lang;document.querySelectorAll("[data-i18n]").forEach(e=>{const v=I18N[state.lang][e.dataset.i18n];if(v)e.textContent=v});renderNav();renderAuth();renderBill()}
+function renderTabs(){$("#tabs").innerHTML=TABS.map((t,i)=>`<button class="tab ${i===state.tab?"on":""}" role="tab" aria-selected="${i===state.tab}" data-tab="${i}"><div class="flex items-center gap-3"><span class="num">${i+1}</span><b class="head">${t.t}</b></div><p class="mt-1 text-sm muted pl-11">${t.d}</p></button>`).join("");
+ const t=TABS[state.tab];$("#shot").innerHTML=`<div class="card overflow-hidden"><div class="flex items-center gap-2 px-4 py-3 border-b" style="border-color:var(--line)"><i style="width:10px;height:10px;border-radius:50%;background:#f87171"></i><i style="width:10px;height:10px;border-radius:50%;background:#fbbf24"></i><i style="width:10px;height:10px;border-radius:50%;background:#34d399"></i><span class="ml-3 text-xs muted rounded-lg px-3 py-1" style="background:var(--bg)">app.englishladder.com/${["test","plan","practice","stats"][state.tab]}</span></div>
+ <!-- IMG_PLACEHOLDER: скриншот интерфейса "${t.shot}", рекомендовано 1200x750px -->
+ <div style="aspect-ratio:16/10">${ph(1200,750,t.shot)}</div></div>`}
+function renderCard(){const w=WORDS[state.card];$("#fc").classList.remove("on");
+ $("#front").innerHTML=`<span class="chip mb-3">Word ${state.card+1}</span><div class="head text-4xl font-extrabold">${w.word}</div><div class="muted mt-1">${w.ipa}</div><button class="btn mt-5" id="say" aria-label="Озвучить">${ic("vol")}<span class="wave" id="wave">${"<i></i>".repeat(9)}</span></button>`;
+ $("#back").innerHTML=`<div class="head text-2xl font-extrabold">${w.ru}</div><p class="mt-3 muted italic">“${w.ex}”</p>`;$("#cnt").textContent=`${state.card+1} / ${WORDS.length}`}
+function renderTeachers(){$("#tgrid").innerHTML=TEACHERS.map((t,i)=>`<article class="card p-5 text-center flex flex-col items-center">
+ <!-- IMG_PLACEHOLDER: аватар преподавателя, круг, 160x160px -->
+ <div class="w-24 h-24 rounded-full overflow-hidden flex items-center justify-center head font-extrabold text-2xl" style="background:linear-gradient(135deg,var(--brand-soft),var(--line));color:var(--brand)" aria-label="Аватар ${t.name}">${initials(t.name)}</div>
+ <h3 class="mt-3 font-bold">${t.name}</h3><p class="text-sm muted">${t.flag} ${t.accent} · ★ ${t.rate}</p>
+ <div class="mt-3 flex flex-wrap gap-1.5 justify-center">${t.tags.map(x=>`<span class="chip">${x}</span>`).join("")}</div>
+ <button class="btn mt-4 w-full justify-center" data-video="${i}">${ic("play",16)} Видео-визитка</button></article>`).join("")}
+function price(p){return p.monthly===0?0:Math.round(state.yearly?p.monthly*0.8:p.monthly)}
+function renderBill(){$("#bill").innerHTML=[[false,"month"],[true,"year"]].map(([y,k])=>`<button class="px-4 py-2 rounded-xl" style="${state.yearly===y?"background:var(--brand);color:var(--on-brand)":""}" data-bill="${y}">${T(k)}</button>`).join("")}
+function renderPlans(){$("#pgrid").innerHTML=PLANS.map((p,i)=>`<article class="card p-6 flex flex-col relative" style="${p.pop?"border:2px solid var(--brand);transform:scale(1.03)":""}">${p.pop?`<span class="chip absolute -top-3 left-6" style="background:var(--brand);color:var(--on-brand)">Популярный</span>`:""}
+ <h3 class="head text-xl font-extrabold">${p.name}</h3><div class="mt-3 flex items-end gap-1"><span class="head text-5xl font-extrabold" data-price="${i}">${price(p)}</span><span class="muted mb-2">$ / мес</span></div>
+ <ul class="mt-5 flex flex-col gap-2 text-sm flex-1">${p.feat.map(f=>`<li class="flex gap-2"><span style="color:var(--brand)">${ic("check",16)}</span>${f}</li>`).join("")}</ul>
+ <button class="btn ${p.pop?"btn-c":""} mt-6 justify-center" data-open="m-login">Выбрать</button></article>`).join("")}
+function tween(el,to){const from=+el.textContent,t0=performance.now();const f=t=>{const k=Math.min(1,(t-t0)/400);el.textContent=Math.round(from+(to-from)*k);if(k<1)requestAnimationFrame(f)};requestAnimationFrame(f)}
+function renderReviews(){$("#rgrid").innerHTML=REVIEWS.map(r=>`<article class="card p-5 flex flex-col gap-4"><div class="flex gap-0.5" style="color:var(--cta)">${ic("star",16).repeat(5)}</div><p>«${r.text}»</p>
+ <div class="flex items-center gap-3"><!-- IMG_PLACEHOLDER: фото студента, круг, 96x96px --><div class="w-12 h-12 rounded-full flex items-center justify-center head font-bold" style="background:var(--brand-soft);color:var(--brand)">${initials(r.name)}</div><div><b>${r.name}</b><div class="text-xs muted">${r.role}</div></div></div>
+ <!-- IMG_PLACEHOLDER: скриншот сертификата / переписки, 600x300px -->
+ <div class="rounded-xl overflow-hidden" style="aspect-ratio:2/1">${ph(600,300,r.proof)}</div></article>`).join("")}
+function setMode(m){state.mode=m;$("#lname").hidden=m==="login";$("#lsub").textContent=m==="login"?"Войти":"Создать аккаунт";$("#lt").innerHTML=[["login","Вход"],["reg","Регистрация"]].map(([k,l])=>`<button class="btn ${state.mode===k?"btn-p":""}" data-mode="${k}">${l}</button>`).join("")}
+function authOk(){state.auth=true;renderAuth();closeAll()}
+function closeAll(){document.querySelectorAll(".modal").forEach(m=>m.classList.remove("open"))}
+function openM(id){closeAll();$("#"+id).classList.add("open")}
+function speak(t){const w=$("#wave");w.classList.add("go");setTimeout(()=>w.classList.remove("go"),1400);if("speechSynthesis" in window){speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang="en-US";speechSynthesis.speak(u)}}
+function themeIcon(){const dark=document.documentElement.dataset.theme?document.documentElement.dataset.theme==="dark":matchMedia("(prefers-color-scheme: dark)").matches;$("#theme").innerHTML=ic(dark?"sun":"moon")}
+
+/* ===== СОБЫТИЯ ===== */
+document.addEventListener("click",e=>{const b=e.target.closest("button,[data-open]");if(!b){if(e.target.classList&&e.target.classList.contains("modal"))closeAll();return}
+ const d=b.dataset;
+ if(d.open){if(state.auth&&d.open==="m-login")location.href="/app";else openM(d.open)}else if("close" in d)closeAll();
+ else if(d.lang){state.lang=d.lang;applyLang()}
+ else if(d.tab){state.tab=+d.tab;renderTabs()}
+ else if(d.video){openM("m-video");$("#vcap").textContent=TEACHERS[+d.video].name+" · видео-визитка · 1280 × 720"}
+ else if(d.bill){state.yearly=d.bill==="true";renderBill();PLANS.forEach((p,i)=>tween(document.querySelector(`[data-price="${i}"]`),price(p)))}
+ else if(d.mode)setMode(d.mode);
+ else if(b.id==="flipbtn")$("#fc").classList.toggle("on");
+ else if(b.id==="next"){state.card=(state.card+1)%WORDS.length;renderCard()}
+ else if(b.id==="prev"){state.card=(state.card+WORDS.length-1)%WORDS.length;renderCard()}
+ else if(b.id==="say")speak(WORDS[state.card].word);
+ else if(b.id==="theme"){const r=document.documentElement,dark=r.dataset.theme?r.dataset.theme==="dark":matchMedia("(prefers-color-scheme: dark)").matches;r.dataset.theme=dark?"light":"dark";themeIcon()}
+ else if(b.id==="cab")location.href="/app"});
+$("#lform").addEventListener("submit",async e=>{e.preventDefault();const reg=state.mode==="reg",b={email:$("#lemail").value,password:$("#lpass").value};if(reg)b.name=$("#lname").value;$("#lerr").textContent="";
+ try{const r=await fetch(reg?"/api/auth/register":"/api/auth/login",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(b)});const j=await r.json().catch(()=>({}));if(!r.ok){$("#lerr").textContent=({email_taken:"Этот e-mail уже зарегистрирован.",bad_email:"Проверьте e-mail.",weak_password:"Пароль не короче 8 символов.",bad_name:"Введите имя.",bad_credentials:"Неверный e-mail или пароль.",blocked:"Аккаунт заблокирован.",too_many:"Слишком много попыток, подождите несколько минут."})[j.error]||"Не удалось выполнить запрос.";return}location.href="/app"}catch{$("#lerr").textContent="Нет связи с сервером."}});
+$("#tform").addEventListener("submit",e=>{e.preventDefault();e.target.innerHTML='<p class="font-bold">Заявка отправлена ✓</p>'});
+document.addEventListener("keydown",e=>{if(e.key==="Escape")closeAll()});
+
+/* ===== СТАРТ ===== */
+["#x1","#x2","#x3"].forEach(s=>$(s).innerHTML=ic("x"));$("#vplay").innerHTML=ic("play",22);$("#b1i").innerHTML=ic("book");$("#b2i").innerHTML=ic("mic");
+fetch("/api/me").then(r=>r.ok?r.json():null).then(u=>{if(u){state.auth=true;renderAuth();if(u.role==="admin")$("#auth").insertAdjacentHTML("afterbegin",'<a class="btn" href="/admin">Админка</a>')}}).catch(()=>{});if(new URLSearchParams(location.search).get("login"))openM("m-login");
+renderTabs();renderCard();renderTeachers();renderPlans();renderReviews();setMode("login");applyLang();themeIcon();
+</script>
+</body>
+</html>

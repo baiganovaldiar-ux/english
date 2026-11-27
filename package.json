@@ -1,0 +1,1 @@
+{"name":"english-ladder","version":"1.0.0","private":true,"description":"Платформа изучения английского: главная, приложение, админ-панель","engines":{"node":">=22.13"},"scripts":{"start":"node server.js","test":"node test/e2e.js && node test/app-integration.js"}}
